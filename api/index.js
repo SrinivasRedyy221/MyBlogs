@@ -11,18 +11,18 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 const uploadMiddleware = multer({ storage });
 
-const salt= bcrypt.genSaltSync(10);
-const secret='sjfijafjifodjsfsdj';
+require('dotenv').config();
 
+const salt= bcrypt.genSaltSync(10);
+const secret=process.env.SECRET;
+
+const PORT=process.env.PORT || 4000;
 
 app.use(cors({ credentials: true, origin: 'http://localhost:3000'}));
 app.use(express.json());
 app.use(cookieParser());
 
-mongoose.connect('mongodb+srv://SrinivasReddy:reddy123@cluster0.oikncwc.mongodb.net/test?retryWrites=true&w=majority', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.DATABASE);
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
@@ -192,6 +192,6 @@ app.get('/posts/:id',async (req,res)=>{
 }
 );
 
-app.listen(4000, () => {
+app.listen(PORT, () => {
   console.log('Server is running on port 4000');
 });
