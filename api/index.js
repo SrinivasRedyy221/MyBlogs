@@ -17,8 +17,9 @@ const salt= bcrypt.genSaltSync(10);
 const secret=process.env.SECRET;
 
 const PORT=process.env.PORT || 4000;
+const BASE_URL=process.env.BASE_URL;
 
-app.use(cors({ credentials: true, origin: 'http://localhost:3000'}));
+app.use(cors({ credentials: true, origin: BASE_URL }));
 app.use(express.json());
 app.use(cookieParser());
 
