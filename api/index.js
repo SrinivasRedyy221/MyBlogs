@@ -1,40 +1,42 @@
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const User = require('./models/user');
-const Post = require('./models/post');
-const bcrypt = require('bcryptjs');
+import express, { json } from 'express';
+import cors from 'cors';
+import { connect, connection } from 'mongoose';
+import { collection, create, findOne, findById } from './models/user';
+import { create as _create, findByIdAndUpdate, findByIdAndDelete, find, findById as _findById } from './models/post';
+import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
 const app = express();
-const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-const multer = require('multer');
-const storage = multer.memoryStorage();
+import { sign, verify } from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
+import multer, { memoryStorage } from 'multer';
+const storage = memoryStorage();
 const uploadMiddleware = multer({ storage });
 
 require('dotenv').config();
 
-const salt= bcrypt.genSaltSync(10);
-const secret=process.env.SECRET;
+const salt = genSaltSync(10);
+const secret = process.env.SECRET;
 
-const PORT=process.env.PORT || 4000;
-const BASE_URL=process.env.BASE_URL;
+const PORT = process.env.PORT || 4000;
+const BASE_URL = process.env.BASE_URL;
 
 app.use(cors({ credentials: true, origin: BASE_URL }));
-app.use(express.json());
+app.use(json());
 app.use(cookieParser());
 
-mongoose.connect(process.env.DATABASE);
+connect(process.env.DATABASE);
 
-const db = mongoose.connection;
+const db = connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // Add a unique index to the username field
-User.collection.createIndex({ username: 1 }, { unique: true });
+collection.createIndex({ username: 1 }, { unique: true });
+
+// ... Rest of your code remains the same.
 
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const userDoc = await User.create({ username, password: bcrypt.hashSync(password, salt) });
+    const userDoc = await create({ username, password: hashSync(password, salt) });
     res.json(userDoc);
   } catch (error) {
     // Handle duplicate key error
@@ -48,10 +50,10 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const userDoc=await User.findOne({username});
+        const userDoc=await findOne({username});
         if(userDoc){
-            if(bcrypt.compareSync(password,userDoc.password)){
-                jwt.sign({username,id:userDoc._id},secret,{},(err,token)=>{
+            if(compareSync(password,userDoc.password)){
+                sign({username,id:userDoc._id},secret,{},(err,token)=>{
                     if(err){
                         return res.status(500).json({error:'An error occurred'});
                     }
@@ -73,12 +75,12 @@ app.post('/login', async (req, res) => {
 app.get('/profile',async (req,res)=>{
     const {token}=req.cookies;
     if(token){
-        jwt.verify(token,secret,{},async (err,decoded)=>{
+        verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
             const {id}=decoded;
-            const userDoc=await User.findById(id);
+            const userDoc=await findById(id);
             if(userDoc){
                 return res.json(userDoc);
             }
@@ -102,14 +104,14 @@ app.get('/logout',(req,res)=>{
 app.post('/posts',uploadMiddleware.single('file'), async (req, res) => {    
     const {token}=req.cookies;
     if(token){
-        jwt.verify(token,secret,{},async (err,decoded)=>{
+        verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
             let path=req.file ? req.file.file : null;
             const {title,summary,content}=req.body;
             try {
-                const postDoc = await Post.create({
+                const postDoc = await _create({
                   title,
                   summary,
                   content,
@@ -129,13 +131,13 @@ app.post('/posts',uploadMiddleware.single('file'), async (req, res) => {
 app.put('/posts/:id',uploadMiddleware.single('file'),async (req,res)=>{
     const {token}=req.cookies;
     if(token){
-        jwt.verify(token,secret,{},async (err,decoded)=>{
+        verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
             const {id}=req.params;
             const {title,summary,content}=req.body;
-            const postDoc=await Post.findByIdAndUpdate(id,{
+            const postDoc=await findByIdAndUpdate(id,{
                 title,
                 summary,
                 content,
@@ -161,12 +163,12 @@ app.put('/posts/:id',uploadMiddleware.single('file'),async (req,res)=>{
 app.delete('/posts/:id',async (req,res)=>{
     const {token}=req.cookies;
     if(token){
-        jwt.verify(token,secret,{},async (err,decoded)=>{
+        verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
             const {id}=req.params;
-            const postDoc=await Post.findByIdAndDelete(id);
+            const postDoc=await findByIdAndDelete(id);
             if(postDoc){
                 return res.json(postDoc);
             }
@@ -182,13 +184,13 @@ app.delete('/posts/:id',async (req,res)=>{
 
             
 app.get('/posts',async (req,res)=>{
-    const postDocs=await Post.find().populate('author',['username']).sort({createdAt:-1}).limit(20);
+    const postDocs=await find().populate('author',['username']).sort({createdAt:-1}).limit(20);
     res.json(postDocs);
 });
 
 app.get('/posts/:id',async (req,res)=>{
     const {id}=req.params;
-    const postDoc=await Post.findById(id).populate('author',['username']);
+    const postDoc=await _findById(id).populate('author',['username']);
     res.json(postDoc);  
 }
 );
