@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const cors = require('cors');
 const mongoose = require('mongoose');
 const User = require('./models/user');
