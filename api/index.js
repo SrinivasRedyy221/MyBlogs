@@ -12,12 +12,6 @@ import { memoryStorage } from 'multer';
 const storage = memoryStorage();
 const uploadMiddleware = multer({ storage });
 
-// { genSaltSync, compareSync }
-// { sign, verify as _verify }
-// { connect, connection }
-// { create, findOne, findById }
-// { create as _create, findByIdAndUpdate, findByIdAndDelete, findById as _findById }
-
 import dotenv from 'dotenv';
 dotenv.config();
 
