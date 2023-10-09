@@ -1,20 +1,28 @@
 import express, { json } from 'express';
 import cors from 'cors';
-import { connect, connection } from 'mongoose';
-import { create, findOne, findById } from './models/user.js';
-import { create as _create, findByIdAndUpdate, findByIdAndDelete, findById as _findById } from './models/post.js';
-import { genSaltSync, compareSync } from 'bcryptjs';
+import mongoose from 'mongoose';
+import User from './models/user.js';
+import Post from './models/post.js';
+import bcryptjs from 'bcryptjs';
 const app = express();
-import { sign, verify as _verify } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import multer from 'multer';
 import { memoryStorage } from 'multer';
 const storage = memoryStorage();
 const uploadMiddleware = multer({ storage });
 
-require('dotenv').config();
+// { genSaltSync, compareSync }
+// { sign, verify as _verify }
+// { connect, connection }
+// { create, findOne, findById }
+// { create as _create, findByIdAndUpdate, findByIdAndDelete, findById as _findById }
 
-const salt = genSaltSync(10);
+import dotenv from 'dotenv';
+dotenv.config();
+
+
+const salt = bcryptjs.genSaltSync(10);
 const secret = process.env.SECRET;
 
 const PORT = process.env.PORT || 4000;
@@ -24,9 +32,9 @@ app.use(cors({ credentials: true, origin: BASE_URL }));
 app.use(json()); // Use express.json() instead of json()
 app.use(cookieParser());
 
-connect(process.env.DATABASE);
+mongoose.connect(process.env.DATABASE);
 
-const db = connection;
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // Add a unique index to the username field
@@ -35,7 +43,7 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const userDoc = await create({ username, password: hashSync(password, salt) });
+    const userDoc = await User.create({ username, password: hashSync(password, salt) });
     res.json(userDoc);
   } catch (error) {
     // Handle duplicate key error
@@ -49,10 +57,10 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const userDoc=await findOne({username});
+        const userDoc=await User.findOne({username});
         if(userDoc){
-            if(compareSync(password,userDoc.password)){
-                sign({username,id:userDoc._id},secret,{},(err,token)=>{
+            if(bcryptjs.compareSync(password,userDoc.password)){
+                jwt.sign({username,id:userDoc._id},secret,{},(err,token)=>{
                     if(err){
                         return res.status(500).json({error:'An error occurred'});
                     }
@@ -74,12 +82,12 @@ app.post('/login', async (req, res) => {
 app.get('/profile',async (req,res)=>{
     const {token}=req.cookies;
     if(token){
-        _verify(token,secret,{},async (err,decoded)=>{
+        jwt.verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
             const {id}=decoded;
-            const userDoc=await findById(id);
+            const userDoc=await User.findById(id);
             if(userDoc){
                 return res.json(userDoc);
             }
@@ -103,7 +111,7 @@ app.get('/logout',(req,res)=>{
 app.post('/posts',uploadMiddleware.single('file'), async (req, res) => {    
     const {token}=req.cookies;
     if(token){
-        _verify(token,secret,{},async (err,decoded)=>{
+        jwt.verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
@@ -130,7 +138,7 @@ app.post('/posts',uploadMiddleware.single('file'), async (req, res) => {
 app.put('/posts/:id',uploadMiddleware.single('file'),async (req,res)=>{
     const {token}=req.cookies;
     if(token){
-        verify(token,secret,{},async (err,decoded)=>{
+        jwt.verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
@@ -162,12 +170,12 @@ app.put('/posts/:id',uploadMiddleware.single('file'),async (req,res)=>{
 app.delete('/posts/:id',async (req,res)=>{
     const {token}=req.cookies;
     if(token){
-        verify(token,secret,{},async (err,decoded)=>{
+        jwt.verify(token,secret,{},async (err,decoded)=>{
             if(err){
                 return res.status(401).json({error:'Unauthorized'});
             }
             const {id}=req.params;
-            const postDoc=await findByIdAndDelete(id);
+            const postDoc=await Post.findByIdAndDelete(id);
             if(postDoc){
                 return res.json(postDoc);
             }
@@ -183,13 +191,13 @@ app.delete('/posts/:id',async (req,res)=>{
 
             
 app.get('/posts',async (req,res)=>{
-    const postDocs=await find().populate('author',['username']).sort({createdAt:-1}).limit(20);
+    const postDocs=await Post.find().populate('author',['username']).sort({createdAt:-1}).limit(20);
     res.json(postDocs);
 });
 
 app.get('/posts/:id',async (req,res)=>{
     const {id}=req.params;
-    const postDoc=await _findById(id).populate('author',['username']);
+    const postDoc=await Post.findById(id).populate('author',['username']);
     res.json(postDoc);  
 }
 );
