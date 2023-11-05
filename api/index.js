@@ -112,7 +112,7 @@ app.post('/posts',uploadMiddleware.single('file'), async (req, res) => {
             let path=req.file ? req.file.file : null;
             const {title,summary,content}=req.body;
             try {
-                const postDoc = await _create({
+                const postDoc = await Post.create({
                   title,
                   summary,
                   content,
@@ -138,7 +138,7 @@ app.put('/posts/:id',uploadMiddleware.single('file'),async (req,res)=>{
             }
             const {id}=req.params;
             const {title,summary,content}=req.body;
-            const postDoc=await findByIdAndUpdate(id,{
+            const postDoc=await Post.findByIdAndUpdate(id,{
                 title,
                 summary,
                 content,
