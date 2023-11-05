@@ -1,8 +1,8 @@
 import express, { json } from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import User from './models/user';
-import Post from './models/post';
+import User from './models/user.js';
+import Post from './models/post.js';
 import bcryptjs from 'bcryptjs';
 const app = express();
 import jwt from 'jsonwebtoken';
