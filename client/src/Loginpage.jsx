@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import axios from 'axios';
 
 const Loginpage = () => {
     const [username, setUsername] = useState('');
@@ -7,17 +8,13 @@ const Loginpage = () => {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        const response=await fetch('http://localhost:4000/login', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
+        const response=await axios.post('http://localhost:4000/login', {
                 username: username,
                 password: password
-            }),
-            credentials: 'include',
-        });
-        if (response.ok) {
+        },{withCredentials: true});
+        if (response.status === 200) {
             window.location.href = '/';
+            console.log(response.data);
         } else {
             alert('Login failed');
         }

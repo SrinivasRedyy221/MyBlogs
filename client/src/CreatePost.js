@@ -37,7 +37,7 @@ export default function CreatePost() {
     // }
 
     return (
-        <form className='flex flex-col justify-start gap-3' onSubmit={createNewPost}>
+        <form className='min-h-screen flex flex-col justify-start gap-3' onSubmit={createNewPost}>
             <h1 className='text-2xl font-bold'>Create Post</h1>
        
             <input type="title" placeholder={'Title'} className='' value={title} onChange={ev=>setTitle(ev.target.value)}/>

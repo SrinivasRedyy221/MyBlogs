@@ -43,7 +43,7 @@ function PostPage() {
 
 
   return (
-    <div className="flex flex-col justify-start gap-5">
+    <div className="min-h-screen flex flex-col justify-start gap-5">
       <h1 className="text-4xl font-bold text-center">{postInfo.title}</h1>
       <div className="flex flex-row justify-evenly">
         <div>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import { UserContext } from "./UserContext";
+import axios from "axios";
 
 export default function Header() {
   const { setUserInfo, userInfo } = useContext(UserContext);
@@ -8,11 +9,12 @@ export default function Header() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const response = await fetch('http://localhost:4000/profile', {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const userInfo = await response.json();
+        const response = await axios.get('http://localhost:4000/profile', {
+          withCredentials: true,
+        })
+        if (response.status === 200) {
+          const userInfo = response.data;
+          console.log(userInfo);
           setUserInfo(userInfo);
         }
       } catch (error) {
