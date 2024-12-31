@@ -14,7 +14,7 @@ export default function CreatePost() {
         data.append("summary",summary)
         data.append("content",content)
         // data.append("file",image)
-        const response=await fetch("http://localhost:4000/posts", {
+        const response=await fetch("https://myblogs-7clj.onrender.com/posts", {
             method: "POST",
             body: data,
             credentials: "include"

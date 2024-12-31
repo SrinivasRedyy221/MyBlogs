@@ -9,7 +9,7 @@ export default function Header() {
   useEffect(() => {
     async function fetchProfile() {
       try {
-        const response = await axios.get('http://localhost:4000/profile', {
+        const response = await axios.get('https://myblogs-7clj.onrender.com/profile', {
           withCredentials: true,
         })
         if (response.status === 200) {
@@ -25,7 +25,7 @@ export default function Header() {
   }, [setUserInfo]);
 
   function handleLogout() {
-    fetch('http://localhost:4000/logout', {
+    fetch('https://myblogs-7clj.onrender.com/logout', {
       credentials: 'include',
       method: 'POST',
     }).then(() => {

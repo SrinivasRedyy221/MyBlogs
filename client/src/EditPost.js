@@ -11,7 +11,7 @@ export default function EditPost() {
   const [redirect,setRedirect] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:4000/posts/'+id)
+    fetch('https://myblogs-7clj.onrender.com/posts/'+id)
       .then(response => {
         response.json().then(postInfo => {
           setTitle(postInfo.title);
@@ -28,7 +28,7 @@ export default function EditPost() {
     data.append('summary', summary);
     data.append('content', content);
     data.append('file', files);
-    const response = await fetch('http://localhost:4000/posts/'+id, { 
+    const response = await fetch('https://myblogs-7clj.onrender.com/posts/'+id, { 
       method: 'PUT',
       body: data,
       credentials: 'include'

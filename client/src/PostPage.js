@@ -10,7 +10,7 @@ function PostPage() {
   const { id } = useParams();
   
   useEffect(() => {
-    fetch(`http://localhost:4000/posts/${id}`, {
+    fetch(`https://myblogs-7clj.onrender.com/posts/${id}`, {
       method: "GET",
       credentials: "include"
     })
@@ -32,7 +32,7 @@ function PostPage() {
   const formattedDate = createdAtDate ? formatISO9075(createdAtDate) : "N/A";
 
   async function handleDelete(){
-    const response = await fetch(`http://localhost:4000/posts/${id}`, {
+    const response = await fetch(`https://myblogs-7clj.onrender.com/posts/${id}`, {
       method: "DELETE",
       credentials: "include"
     })
@@ -66,7 +66,7 @@ function PostPage() {
           </Link> 
       </div> : <div>Author can make the edits</div>}
       
-      {/* <img src={`http://localhost:4000/${postInfo.cover}`} alt="Cover of the post" className='w-1/2 mx-auto' /> */}
+      {/* <img src={`https://myblogs-7clj.onrender.com/${postInfo.cover}`} alt="Cover of the post" className='w-1/2 mx-auto' /> */}
       <h2 className="text-xl font-bold text-center">{postInfo.summary}</h2>
 
       <div className="text-center" dangerouslySetInnerHTML={{ __html: postInfo.content }} />

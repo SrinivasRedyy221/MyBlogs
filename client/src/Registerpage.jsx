@@ -17,7 +17,7 @@ const RegisterPage = () => {
   };
   async function handleRegister(event) {
     event.preventDefault();
-    const response= await axios.post("http://localhost:4000/register", {
+    const response= await axios.post("https://myblogs-7clj.onrender.com/register", {
             username: username,
             password: password,
     });

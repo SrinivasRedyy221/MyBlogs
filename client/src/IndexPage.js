@@ -4,7 +4,7 @@ import axios from "axios";
 function IndexPage() {
     const [posts,setPosts]=useState([]);
     useEffect(()=>{
-      axios.get('http://localhost:4000/posts', {
+      axios.get('https://myblogs-7clj.onrender.com/posts', {
         withCredentials: true,
     })
     .then(response => {

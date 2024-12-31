@@ -8,7 +8,7 @@ const Loginpage = () => {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        const response=await axios.post('http://localhost:4000/login', {
+        const response=await axios.post('https://myblogs-7clj.onrender.com/login', {
                 username: username,
                 password: password
         },{withCredentials: true});
