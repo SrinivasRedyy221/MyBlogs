@@ -57,7 +57,7 @@ app.post("/login", async (req, res) => {
     const userDoc = await User.findOne({ username });
     if (userDoc) {
       if (bcryptjs.compareSync(password, userDoc.password)) {
-        jwt.sign({ username, id: userDoc._id.toString() }, secret, {}, (err, token) => {
+        jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
           if (err) {
             return res.status(500).json({ error: "An error occurred" });
           }
